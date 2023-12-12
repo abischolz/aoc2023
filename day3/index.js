@@ -61,49 +61,31 @@ class Schematic {
     }
     // this is DFS approach to finding a part number - input is a symbol node 
     findPartNumber(node) {
-        //console.log('adjoining node is ', node)
         // if this node has already been part of a part number, we cannot add it to another part number
         if (node.visited) {
-            //console.log('we have already used this node in a part number')
+            console.log('we have already used this node in a part number')
             return;
         }
-        // each adjoining is a number node already - set the first number as the part number
         let partNumber = node.value;
-        // set node to visited - it is already part of the part number
         node.visited = true; 
 
         const [x, y] = node.location;
-        //console.log('LOCATION START IS ', node.location)
-        //console.log('starting location is ', node.location)
         const maxY = this.nodes[0].length-1;
-        //console.log('MAX Y  is ', maxY)
 
         let left, right;
         if (y > 0) {
             left = this.nodes[x][y-1]
-            //console.log('left node is ', left)
         }  
 
         if (left && left.number && !left.visited) {
-            //console.log('left - recursing...')
-            // add part to beginning of existing part number  
             partNumber = this.findPartNumber(left) + partNumber; 
-            //console.log('what is partnumber ? ', partNumber)
         } 
-
-
         if (y < maxY) {
-            //console.log('right - recursing...')
-
             right = this.nodes[x][y+1]
-            //console.log('right node is ', right)
         }
-        
         if (right && right.number && !right.visited) {
-            // add part to end of existing part number
             partNumber += this.findPartNumber(right)
         }   
-        //console.log('part number is ', partNumber)
         return partNumber;
     }
 }
@@ -113,17 +95,15 @@ class Node {
         this.value = val;
         this.visited = false;
         this.gearRatio = 0;
-        this.symbol = ''; // set when node is added 
-        this.number = ''; // set when node is added 
-        this.location = [row, col] // [x,y]
-        this.adjoining = []; // this is only relevant for symbols - keeps track of traversal
+        this.symbol = ''; 
+        this.number = '';
+        this.location = [row, col] 
+        this.adjoining = []; 
         this.partNumbers = [];
     }
 
     isSymbol() {
         const regex = new RegExp('[^0-9.]')
-        //const code = this.value.charCodeAt(0);
-        //console.log('code is ', code)
         if (regex.test(this.value)) {
             this.symbol = true;
         } else {
@@ -150,10 +130,8 @@ class Node {
             }
         })
         this.adjoining = adjacent;
-        //console.log('adjoining for node is ', this.adjoining)
     }
     calculateGearRatio() {
-        // only calculate if gear is adjacent to two part numbers
         if (this.partNumbers.length === 2) {
             this.gearRatio = Number(this.partNumbers[0]) * Number(this.partNumbers[1])
         } else {
@@ -163,19 +141,12 @@ class Node {
 }
 
 
-const input = parseInput('day3/input.txt')
 
 const buildGraph = (input) => {
-    //console.log('input is ', input)
     const schematic = new Schematic(); 
-    //schematic.addRow(); // adds initial row 
-    //console.log('input length is ', input.length)
-    //console.log('first element length is ', input[0].length)
     for (let i = 0; i < input.length; i++) {
         schematic.addRow()
-        //console.log('row # is ', i)
         for (let j = 0; j < input[i].length; j++) {
-            //console.log('column # is ', j)
             const node = new Node(input[i][j], i, j); 
             node.isSymbol(); 
             node.isNumber(); 
@@ -185,47 +156,33 @@ const buildGraph = (input) => {
             schematic.addNode(node)
         }
     }
-    //console.log('# of columns is ', schematic.nodes[0].length)
-    //console.log('# of rows is ', schematic.nodes.length)
-    //console.log('# of symbols is ', schematic.symbols.length)
-    //console.log('schematic nodes is ', schematic.nodes)
     schematic.symbols.forEach(node => {
-        //console.log('symbol node is ', node)
         node.addAdjoining(schematic)
-
-        //console.log('adjoining = ', node.adjoining)
-        //return;
-        //here - dfs method to find and store all part numbers 
         node.adjoining.forEach(nodeNum => {
             const partNumber = schematic.findPartNumber(nodeNum)
             if (partNumber) {
                 schematic.partNumbers.push(partNumber);
                 node.partNumbers.push(partNumber); 
             }
-            // console.log('how did we do ', schematic.partNumbers)
         })
         node.calculateGearRatio();
-        // now we have all the part numbers - we need to turn them into numbers and sum them    
     })
-
-    return schematic; 
-    
+    return schematic;   
 }
+
+const input = parseInput('day3/input.txt')
 const graph = buildGraph(input)
-//console.log('partnumbers are ', graph.partNumbers)
+
 // PART 1 ANSWER    
 const total = graph.partNumbers.reduce((previous, current) => {
     return previous += Number(current);
     
 }, 0)
-// PART 2 ANSWER
 
+// PART 2 ANSWER
 const gears = graph.symbols.filter(symbol => symbol.value.charCodeAt(0) === 42)
-//console.log('gears are ', gears)
 const ratioSum = gears.reduce((sum, gear) => {return sum += gear.gearRatio}, 0)
-                    
-//console.log('total IS ', total)
-//console.log('ratioSum IS ', ratioSum)
+
 
 
 

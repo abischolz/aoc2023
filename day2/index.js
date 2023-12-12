@@ -31,13 +31,10 @@ class Game {
             const [count, color] = elem.trim().split(' ');
             round.setColor(count, color); 
             round.isPossible();
-            //console.log('round colors ', round.colors)
-            //console.log('game colors ', this.colors)
             if (round.colors[color] > this.colors[color]) {
                 this.colors[color] = round.colors[color];
             }
         })
-        //console.log('round is ', round)
         this.addRound(round);
     }
     addRound(round) {
@@ -54,7 +51,6 @@ class Game {
     setPower() {
 
         this.power = this.colors.red * this.colors.blue * this.colors.green
-        //console.log('power is ', this.power)
         return;
     }
 }
@@ -90,34 +86,21 @@ const getId = (str) => {
     }
 }
 
-// const countCubes = (str, color) => {
-//     const regex = new RegExp(`[0-9]+(?= ${color})`)
-//     const count = str.match(regex)
-//     return count[0];
-// }   
-
 const buildRound = (arr) => {
-    //[ ' 3 blue', ' 4 red' ]
-
     const round = new Round();
     arr.forEach(elem => {
         const [count, color] = elem.trim().split(' ');
         round.setColor(count, color); 
         round.isPossible();
     })
-    //console.log('round is ', round)
     return round;
 
     
 }
 const buildGame = (str) => { 
-    //console.log('STRING IS ', str)
     const gameArray = str.split(':'); 
-    
     const id = getId(gameArray[0]);
-    //console.log(id)
     const rounds = gameArray[1].split(';').map(str => str.split(','))
-    //console.log('rounds are', rounds)
     const game = new Game(id); 
 
     rounds.forEach(r => game.addRound(buildRound(r)))    
@@ -127,40 +110,26 @@ const buildGame = (str) => {
 }
 
 const calculateIdSum = (games) => {
-    //console.log('INPUT IS ', games)
     let idSum = 0; 
     games.forEach(g => {
         const game = buildGame(g)
         if (game.possible) {
             idSum += Number(game.id)
-            //console.log('idSum is now ', idSum)
         }
     })
     return idSum;
 }
-// solution part 1 
-//const input = parseInput('day2/input.txt')
-//calculateIdSum(input);
-// ['Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green']
-// once input is parsed, split into games 
-// console.log(buildGame(input[0]))
-
 const buildGameMin = (str) => { 
-    //console.log('STRING IS ', str)
     const gameArray = str.split(':'); 
     
     const id = getId(gameArray[0]);
-    //console.log(id)
     const rounds = gameArray[1].split(';').map(str => str.split(','))
-    //console.log('rounds are', rounds)
     const game = new Game(id); 
     rounds.forEach(r => game.buildRound(r))
     game.setPower(); 
-    //console.log('game is ', game)
     return game;
 }
 const calculatePowerSum = (games) => {
-    //console.log('INPUT IS ', games)
     let powerSum = 0; 
     games.forEach(g => {
         const game = buildGameMin(g)
@@ -169,4 +138,8 @@ const calculatePowerSum = (games) => {
     return powerSum;
 }
 const input = parseInput('day2/input.txt')
-console.log('POWER SUM IS ', calculatePowerSum(input));
+
+// solution part 1 
+calculateIdSum(input);
+// solution part 2
+ calculatePowerSum(input);
